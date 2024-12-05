@@ -1,18 +1,21 @@
 import parser from 'html-react-parser'
 import { useState } from 'react'
+import { useQuery } from 'react-query'
 import { useOutletContext } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
+import { getCareerApi } from 'apis/careerApis'
 import home_1 from 'assets/images/home_1.png'
 import ApplyButton from 'components/common/ApplyButton'
 import LargeHeading from 'components/common/LargeHeading'
 import PublicTabContentContainer from 'components/common/PublicTabContentContainer'
 import Spacer from 'components/common/Spacer'
 import ApplyForm from 'components/layouts/PublicLayout/ApplyForm'
-import useCareer from 'hooks/query/career/useCareer'
 import { TabsType } from 'pages/types'
 import Modal from 'theme/Modal'
 import { Box, Flex } from 'theme/base'
+
+import { Career } from './type'
 
 const HorBar = styled(Box)`
   width: 100%;
@@ -50,40 +53,42 @@ const ContentContainer = styled(Box)`
     background: white;
   }
 `
-
 function Career2() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const modalOpenHandler = () => {
-    setIsModalOpen((prev) => !prev)
-  }
+  const modalOpenHandler = () => setIsModalOpen((prev) => !prev)
 
   const { jobId } = useOutletContext<{ jobId: string | null; tabs: TabsType; currentTab: number }>()
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { data }: any = useCareer(jobId!)
+  const { data } = useQuery<Career>(['career', jobId], () => {
+    if (!jobId) throw new Error('Job ID is required')
+    return getCareerApi(jobId)
+  })
+
+  if (!jobId) {
+    return <PublicTabContentContainer image={home_1}>No job</PublicTabContentContainer>
+  }
+
   const heading = data ? formatTitle(data.title) : ''
 
   return (
-    <>
-      <PublicTabContentContainer image={home_1}>
-        <Flex
-          maxWidth="850px"
-          flexDirection={['column', 'column', 'row', 'row']}
-          alignItems={['', '', 'center', 'center']}
-          justifyContent={['', '', 'space-between', 'space-between']}
-          sx={{ gap: '24px' }}
-        >
-          <LargeHeading hasUnderline>{heading}</LargeHeading>
-          <ApplyButton onClick={modalOpenHandler}>Apply</ApplyButton>
-        </Flex>
-        <Spacer mb={4} />
-        <ContentContainer>{!!data?.description && parser(data.description)}</ContentContainer>
-        <Modal maxWidth="850px" isOpen={isModalOpen} onDismiss={modalOpenHandler} hasClose title={'APPLY'}>
-          <HorBar mb={['16px', '32px']} mt={['0', '16px']} />
-          <ApplyForm jobId={jobId as string} onDismiss={modalOpenHandler} />
-        </Modal>
-      </PublicTabContentContainer>
-    </>
+    <PublicTabContentContainer image={home_1}>
+      <Flex
+        maxWidth="850px"
+        flexDirection={['column', 'column', 'row', 'row']}
+        alignItems={['', '', 'center', 'center']}
+        justifyContent={['', '', 'space-between', 'space-between']}
+        sx={{ gap: '24px' }}
+      >
+        <LargeHeading hasUnderline>{heading}</LargeHeading>
+        <ApplyButton onClick={modalOpenHandler}>Apply</ApplyButton>
+      </Flex>
+      <Spacer mb={4} />
+      <ContentContainer>{!!data?.description && parser(data.description)}</ContentContainer>
+      <Modal maxWidth="850px" isOpen={isModalOpen} onDismiss={modalOpenHandler} hasClose title={'APPLY'}>
+        <HorBar mb={['16px', '32px']} mt={['0', '16px']} />
+        <ApplyForm jobId={jobId as string} onDismiss={modalOpenHandler} />
+      </Modal>
+    </PublicTabContentContainer>
   )
 }
 
