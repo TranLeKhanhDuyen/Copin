@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useState } from 'react'
 import { Outlet, useNavigate, useParams } from 'react-router-dom'
 
@@ -38,7 +38,7 @@ function Career() {
   // define currentTab: tab.key from job: tab.path and tabs
   const [currentTab, setCurrentTab] = useState(0)
   const jobId = tabs[currentTab].queryId
-
+  const { isSuccess: getCareerIsSuccess, data: getCareerData } = useCareers(jobId)
   // useEffect(() => {
   //   if (pathname !== ROUTES.CAREER.path) return
   //   if (!job) setCurrentTab(0)
@@ -94,11 +94,16 @@ function Career() {
   }
 
   // pass jobId, tabs, currentTab to Outlet Context then use it in Career2
-  const component = () => <Outlet context={{ jobId, tabs, currentTab }} />
+  const contextOutlet = useMemo(
+    () => ({ jobId, tabs, currentTab, data: getCareerIsSuccess ? getCareerData : null }),
+    [jobId, tabs, currentTab, getCareerIsSuccess, getCareerData]
+  )
 
+  const component = useCallback(() => <Outlet context={contextOutlet} />, [contextOutlet])
   const sideBarWeb = () => {
     return <SideBarWeb tabs={tabs} currentTab={currentTab} onTabChange={sideBarClickHandler} />
   }
+
   const sideBarMobile = () => {
     return <SideBarMobile tabs={tabs} currentTab={currentTab} onTabChange={sideBarClickHandler} />
   }

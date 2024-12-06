@@ -1,7 +1,8 @@
 import { useQuery } from 'react-query'
 
-import { getCareersApi } from 'apis/careerApis'
+import { getCareerApi, getCareersApi } from 'apis/careerApis'
 
-const useCareers = () => useQuery<any | null, Error>(['careers'], () => getCareersApi())
-
+const useCareers = (jobId?: string) => {
+  return useQuery(['careers', jobId], () => (jobId ? getCareerApi(jobId) : getCareersApi()))
+}
 export default useCareers

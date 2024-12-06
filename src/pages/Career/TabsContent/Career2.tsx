@@ -9,7 +9,6 @@ import LargeHeading from 'components/common/LargeHeading'
 import PublicTabContentContainer from 'components/common/PublicTabContentContainer'
 import Spacer from 'components/common/Spacer'
 import ApplyForm from 'components/layouts/PublicLayout/ApplyForm'
-import useCareer from 'hooks/query/career/useCareer'
 import { TabsType } from 'pages/types'
 import Modal from 'theme/Modal'
 import { Box, Flex } from 'theme/base'
@@ -57,11 +56,10 @@ function Career2() {
     setIsModalOpen((prev) => !prev)
   }
 
-  const { jobId } = useOutletContext<{ jobId: string | null; tabs: TabsType; currentTab: number }>()
+  const { jobId, data } = useOutletContext<{ jobId: string | null; tabs: TabsType; currentTab: number; data: any }>()
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { data }: any = useCareer(jobId!)
-  const heading = data ? formatTitle(data.title) : ''
+  console.log('jobbId', jobId)
+  const heading = data?.title ? formatTitle(data.title) : 'No Title Available'
 
   return (
     <>
