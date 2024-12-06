@@ -7,8 +7,6 @@ import { UploadFileResponseSuccess } from './api'
 
 export const getCareersApi = () => requester.get('/jobs/page').then((res) => res.data)
 
-export const getCareerApi = (id: string) => requester.get(`/jobs/${id}`).then((res) => res.data)
-
 export const uploadFileApi: MutationFunction<UploadFileResponseSuccess, FormData> = (formData) =>
   requester
     .post('_upload_service/document', formData, {

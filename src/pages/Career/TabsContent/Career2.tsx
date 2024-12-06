@@ -9,7 +9,7 @@ import LargeHeading from 'components/common/LargeHeading'
 import PublicTabContentContainer from 'components/common/PublicTabContentContainer'
 import Spacer from 'components/common/Spacer'
 import ApplyForm from 'components/layouts/PublicLayout/ApplyForm'
-import useCareer from 'hooks/query/career/useCareer'
+import useCareers from 'hooks/query/career/useCareers'
 import { TabsType } from 'pages/types'
 import Modal from 'theme/Modal'
 import { Box, Flex } from 'theme/base'
@@ -58,43 +58,46 @@ function Career2() {
   }
 
   const { jobId } = useOutletContext<{ jobId: string | null; tabs: TabsType; currentTab: number }>()
+  const { isLoading, error, getCurrentCareer } = useCareers()
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { data }: any = useCareer(jobId!)
-  const heading = data ? formatTitle(data.title) : ''
+  const currentCareer = jobId ? getCurrentCareer(jobId) : undefined
+  const heading = currentCareer?.title ? formatTitle(currentCareer.title) : ''
+
+  if (error || !jobId || !currentCareer) {
+    return <div>Error loading career details</div>
+  }
 
   return (
-    <>
-      <PublicTabContentContainer image={home_1}>
-        <Flex
-          maxWidth="850px"
-          flexDirection={['column', 'column', 'row', 'row']}
-          alignItems={['', '', 'center', 'center']}
-          justifyContent={['', '', 'space-between', 'space-between']}
-          sx={{ gap: '24px' }}
-        >
-          <LargeHeading hasUnderline>{heading}</LargeHeading>
-          <ApplyButton onClick={modalOpenHandler}>Apply</ApplyButton>
-        </Flex>
-        <Spacer mb={4} />
-        <ContentContainer>{!!data?.description && parser(data.description)}</ContentContainer>
-        <Modal maxWidth="850px" isOpen={isModalOpen} onDismiss={modalOpenHandler} hasClose title={'APPLY'}>
-          <HorBar mb={['16px', '32px']} mt={['0', '16px']} />
-          <ApplyForm jobId={jobId as string} onDismiss={modalOpenHandler} />
-        </Modal>
-      </PublicTabContentContainer>
-    </>
+    <PublicTabContentContainer image={home_1}>
+      <Flex
+        maxWidth="850px"
+        flexDirection={['column', 'column', 'row', 'row']}
+        alignItems={['', '', 'center', 'center']}
+        justifyContent={['', '', 'space-between', 'space-between']}
+        sx={{ gap: '24px' }}
+      >
+        <LargeHeading hasUnderline>{heading}</LargeHeading>
+        <ApplyButton onClick={modalOpenHandler}>Apply</ApplyButton>
+      </Flex>
+
+      <Spacer mb={4} />
+
+      <ContentContainer>{currentCareer.description && parser(currentCareer.description)}</ContentContainer>
+
+      <Modal maxWidth="850px" isOpen={isModalOpen} onDismiss={modalOpenHandler} hasClose title="APPLY">
+        <HorBar mb={['16px', '32px']} mt={['0', '16px']} />
+        <ApplyForm jobId={jobId} onDismiss={modalOpenHandler} />
+      </Modal>
+    </PublicTabContentContainer>
   )
 }
-
-function formatTitle(title: string) {
-  const newTitle = title.trim().toLowerCase()
-  const newTitleArray = newTitle.split(' ').map((title) => capitalizeFirstLetter(title))
-  return newTitleArray.join(' ')
-}
-
-function capitalizeFirstLetter(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1)
+const formatTitle = (title: string): string => {
+  return title
+    .trim()
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
 
 export default Career2
