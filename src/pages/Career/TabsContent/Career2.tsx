@@ -9,10 +9,10 @@ import LargeHeading from 'components/common/LargeHeading'
 import PublicTabContentContainer from 'components/common/PublicTabContentContainer'
 import Spacer from 'components/common/Spacer'
 import ApplyForm from 'components/layouts/PublicLayout/ApplyForm'
-import useCareer from 'hooks/query/career/useCareer'
-import { TabsType } from 'pages/types'
 import Modal from 'theme/Modal'
 import { Box, Flex } from 'theme/base'
+
+import { CareerOutletContextData } from '../types'
 
 const HorBar = styled(Box)`
   width: 100%;
@@ -57,11 +57,8 @@ function Career2() {
     setIsModalOpen((prev) => !prev)
   }
 
-  const { jobId } = useOutletContext<{ jobId: string | null; tabs: TabsType; currentTab: number }>()
-
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { data }: any = useCareer(jobId!)
-  const heading = data ? formatTitle(data.title) : ''
+  const { careerDetails } = useOutletContext<CareerOutletContextData>()
+  const heading = careerDetails ? formatTitle(careerDetails.title) : ''
 
   return (
     <>
@@ -77,10 +74,10 @@ function Career2() {
           <ApplyButton onClick={modalOpenHandler}>Apply</ApplyButton>
         </Flex>
         <Spacer mb={4} />
-        <ContentContainer>{!!data?.description && parser(data.description)}</ContentContainer>
+        <ContentContainer>{!!careerDetails?.description && parser(careerDetails.description)}</ContentContainer>
         <Modal maxWidth="850px" isOpen={isModalOpen} onDismiss={modalOpenHandler} hasClose title={'APPLY'}>
           <HorBar mb={['16px', '32px']} mt={['0', '16px']} />
-          <ApplyForm jobId={jobId as string} onDismiss={modalOpenHandler} />
+          <ApplyForm jobId={careerDetails?.id || ''} onDismiss={modalOpenHandler} />
         </Modal>
       </PublicTabContentContainer>
     </>

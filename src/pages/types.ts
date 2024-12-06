@@ -33,3 +33,15 @@ export interface ApplyFormValue {
   linkedinUrl?: string
   websiteUrl?: string
 }
+
+export interface CareerData {
+  id: string
+  title: string
+  description: string
+  location: string
+  jobType: string
+  isOpen: boolean
+  isFullTime: boolean
+  createdAt: string
+  updatedAt: string
+}

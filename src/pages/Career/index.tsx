@@ -12,6 +12,8 @@ import Loading from 'theme/Loading'
 import { Box } from 'theme/base'
 import ROUTES from 'utils/routes'
 
+import { CareerOutletContextData } from './types'
+
 const initialTabs: TabsType = [{ key: 0, path: '', value: <Trans>INTRODUCTION</Trans> }]
 
 function Career() {
@@ -23,7 +25,7 @@ function Career() {
   const { data, isLoading } = useCareers()
   const tabs = useMemo(() => {
     const result: TabsType = [...initialTabs]
-    data?.data?.forEach((item: any, index: number) => {
+    data?.forEach((item: any, index: number) => {
       const tab: TabType = {
         value: formatTitleSidebar(item.title),
         queryId: item.id,
@@ -38,6 +40,7 @@ function Career() {
   // define currentTab: tab.key from job: tab.path and tabs
   const [currentTab, setCurrentTab] = useState(0)
   const jobId = tabs[currentTab].queryId
+  const currentCareer = data?.find((_d) => _d.id === jobId)
 
   // useEffect(() => {
   //   if (pathname !== ROUTES.CAREER.path) return
@@ -93,8 +96,10 @@ function Career() {
     })
   }
 
-  // pass jobId, tabs, currentTab to Outlet Context then use it in Career2
-  const component = () => <Outlet context={{ jobId, tabs, currentTab }} />
+  const outletContext: CareerOutletContextData = {
+    careerDetails: currentCareer,
+  }
+  const component = () => <Outlet context={outletContext} />
 
   const sideBarWeb = () => {
     return <SideBarWeb tabs={tabs} currentTab={currentTab} onTabChange={sideBarClickHandler} />
